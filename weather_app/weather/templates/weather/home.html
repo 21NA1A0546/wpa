@@ -22,27 +22,66 @@
             {% if weather_data.error %}
                 <div class="alert alert-danger">{{ weather_data.error }}</div>
             {% else %}
-                <div class="card">
+                <div class="card mb-4">
                     <div class="card-body">
                         <h3 class="card-title">{{ weather_data.place_name }}</h3>
-                        <p>Temperature: <span id="temperature">{{ weather_data.temperature }}</span> °C</p>
-                        <p>Feels Like: <span id="feels_like">{{ weather_data.temperature_apparent }}</span> °C</p>
-                        <p>Precipitation: {{ weather_data.precipitation }}</p>
-                        <p>Humidity: {{ weather_data.humidity }}%</p>
-                        <p>Wind Speed: {{ weather_data.wind_speed }} km/h</p>
-                        <p>Wind Direction: {{ weather_data.wind_direction }}°</p>
+                        <p>Temperature: {{ weather_data.temperature }} °C</p>
                     </div>
                 </div>
                 
+                <!-- Hourly Temperature Graph -->
+                <h4>Hourly Temperature</h4>
+                <canvas id="hourlyTempChart" style="width: 100%; height: 400px;"></canvas>
+
                 <!-- Map -->
                 <div id="map" class="mt-4" style="height: 300px;"></div>
             {% endif %}
         {% endif %}
     </div>
     
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include Mapbox -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    
     <script>
+        // Chart.js - Hourly Temperature Graph
+        const hourlyTempCtx = document.getElementById('hourlyTempChart').getContext('2d');
+        const hourlyTempChart = new Chart(hourlyTempCtx, {
+            type: 'line',
+            data: {
+                labels: {{ hourly_time|safe }},
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: {{ hourly_temperature|safe }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Temperature (°C)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Mapbox - Map Visualization
         mapboxgl.accessToken = "{{ mapbox_token }}";
         const map = new mapboxgl.Map({
             container: 'map',
