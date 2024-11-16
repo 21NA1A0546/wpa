@@ -28,7 +28,7 @@ def home(request):
                 tomorrow_params = {
                     'location': f'{coordinates[1]},{coordinates[0]}',
                     'apikey': TOMORROW_API_KEY,
-                    'fields': 'temperature,temperatureApparent,humidity,windSpeed,precipitationIntensity,windDirection',
+                    'fields': 'temperature',
                     'timesteps': '1h',
                     'units': 'metric',
                     'startTime': 'now',
@@ -46,11 +46,6 @@ def home(request):
                     weather_data = {
                         'place_name': place_name,
                         'temperature': timeline[0]['values']['temperature'],
-                        'temperatureApparent': timeline[0]['values']['temperatureApparent'],
-                        'humidity': timeline[0]['values']['humidity'],
-                        'precipitationIntensity': timeline[0]['values']['precipitationIntensity'],
-                        'windSpeed': timeline[0]['values']['windSpeed'],
-                        'windDirection': timeline[0]['values']['windDirection'],
                         'coordinates': coordinates,
                     }
                 else:
