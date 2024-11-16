@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Prediction</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <style>
+        .graph-box, .map-box {
+            height: 400px;
+        }
+    </style>
 </head>
 <body>
     <div class="container my-5">
         <h1 class="text-center">Weather Prediction</h1>
-        
+
         <!-- Search Bar -->
         <form method="POST" class="d-flex my-4">
             {% csrf_token %}
@@ -17,7 +23,7 @@
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
 
-        <!-- Weather Report -->
+        <!-- Weather Report Section -->
         {% if weather_data %}
             {% if weather_data.error %}
                 <div class="alert alert-danger">{{ weather_data.error }}</div>
@@ -28,23 +34,29 @@
                         <p>Temperature: {{ weather_data.temperature }} °C</p>
                     </div>
                 </div>
-                
-                <!-- Hourly Temperature Graph -->
-                <h4>Hourly Temperature</h4>
-                <canvas id="hourlyTempChart" style="width: 100%; height: 400px;"></canvas>
 
-                <!-- Map -->
-                <div id="map" class="mt-4" style="height: 300px;"></div>
+                <!-- Graph Box -->
+                <h4>Hourly Temperature</h4>
+                <div class="graph-box mb-4">
+                    <canvas id="hourlyTempChart" style="width: 100%; height: 100%;"></canvas>
+                </div>
+
+                <!-- Map Box -->
+                <div class="map-controls d-flex justify-content-end mb-2">
+                    <button class="btn btn-secondary me-2" onclick="setMapStyle('mapbox/streets-v11')">Normal View</button>
+                    <button class="btn btn-secondary me-2" onclick="setMapStyle('mapbox/satellite-v9')">Satellite View</button>
+                    <button class="btn btn-secondary" onclick="setMapStyle('mapbox/outdoors-v11')">Terrain View</button>
+                </div>
+                <div class="map-box" id="map"></div>
             {% endif %}
         {% endif %}
     </div>
-    
+
     <!-- Include Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Include Mapbox -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
-    
+
     <script>
         // Chart.js - Hourly Temperature Graph
         const hourlyTempCtx = document.getElementById('hourlyTempChart').getContext('2d');
@@ -88,6 +100,20 @@
             style: 'mapbox://styles/mapbox/streets-v11',
             center: {{ weather_data.coordinates|default:"[0,0]" }},
             zoom: 10
+        });
+
+        // Set Map Style Dynamically
+        function setMapStyle(style) {
+            map.setStyle(`mapbox://styles/${style}`);
+        }
+
+        // Match Graph Box and Map Box Heights
+        window.addEventListener('load', () => {
+            const graphBox = document.querySelector('.graph-box');
+            const mapBox = document.querySelector('.map-box');
+            const height = Math.max(graphBox.clientHeight, mapBox.clientHeight);
+            graphBox.style.height = `${height}px`;
+            mapBox.style.height = `${height}px`;
         });
     </script>
 </body>
