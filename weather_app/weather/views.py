@@ -61,3 +61,6 @@ def home(request):
         'hourly_time': hourly_time,
         'hourly_temperature': hourly_temperature
     })
+
+def compare(request):
+    return render(request, 'weather/compare.html', {})
